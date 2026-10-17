@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ateso Translate</title><meta name="description" content="English and Ateso translation for text and full documents.">
+<style>
+:root{--bg:#edf0ea;--card:#fbfcfa;--ink:#101a16;--mute:#56645d;--line:#d3dbd2;--acc:#17352b;--accw:#fbfcfa;--sun:#e7b416;--low:#b5651d;--bad:#a02b2b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1512;--card:#17211c;--ink:#e9f0ec;--mute:#99a8a0;--line:#2a3831;--acc:#e7b416;--accw:#101a16;--low:#f0a95b;--bad:#f08a8a}}
+:root[data-theme="dark"]{--bg:#0e1512;--card:#17211c;--ink:#e9f0ec;--mute:#99a8a0;--line:#2a3831;--acc:#e7b416;--accw:#101a16;--low:#f0a95b;--bad:#f08a8a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:18px 16px 40px}
+h1{font:700 1.7rem/1.15 Charter,"Iowan Old Style",Georgia,serif;margin:6px 0 4px}.sub{color:var(--mute);margin:0 0 18px;max-width:60ch}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;color:var(--ink);padding:9px 14px;font:inherit;cursor:pointer}.seg button.on{background:var(--acc);color:var(--accw)}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 12px;font:inherit;font-size:.9rem;cursor:pointer}.btn:hover{border-color:var(--acc)}.btn.p{background:var(--acc);color:var(--accw);border-color:var(--acc)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:720px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-height:200px;display:flex;flex-direction:column;gap:6px}
+.lab{font-size:.85rem;color:var(--mute);display:flex;justify-content:space-between;gap:8px}
+textarea{flex:1;min-height:150px;width:100%;border:0;outline:0;resize:vertical;background:none;color:var(--ink);font:inherit;font-size:1.1rem}
+#out,.seg-out{flex:1;font:1.12rem/1.6 Charter,"Iowan Old Style",Georgia,serif;white-space:pre-wrap;min-height:150px}.empty{color:var(--mute)}
+.low{border-bottom:2px dotted var(--low)}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.note{font-size:.88rem;color:var(--mute);margin:4px 0}.err{color:var(--bad)}
+#drop{border:2px dashed var(--line);border-radius:8px;padding:28px 16px;text-align:center;color:var(--mute);background:var(--card);cursor:pointer}#drop.over{border-color:var(--acc)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .3s}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}@media(max-width:720px){.pair{grid-template-columns:1fr}}
+.pair .s{color:var(--mute)}.pair .t{font-family:Charter,Georgia,serif;font-size:1.05rem}
+.hide{display:none}footer{color:var(--mute);font-size:.82rem;margin-top:26px;max-width:75ch}
+</style></head><body><main>
+<h1>Ateso Translate</h1>
+<p class="sub">Translate between English and Ateso, from a single sentence to a full document. Results are machine drafts; the page shows where the model is unsure.</p>
+<div id="wake" class="note hide">The translation server is waking up. On the free plan this can take a few minutes.</div>
+<div class="row">
+ <div class="seg" id="mode"><button data-m="text" class="on">Text</button><button data-m="doc">Document</button></div>
+ <div class="seg" id="dir"><button data-d="auto" class="on">Detect language</button><button data-d="eng-teo">English to Ateso</button><button data-d="teo-eng">Ateso to English</button></div>
+ <button class="btn" id="swap">Swap</button>
+</div>
+
+<section id="p-text">
+ <div class="grid">
+  <div class="card"><div class="lab"><span id="sl">English</span><span id="det"></span></div>
+  <textarea id="in" placeholder="Type or paste text" spellcheck="false"></textarea>
+  <div class="acts"><button class="btn" id="clear">Clear</button></div></div>
+  <div class="card"><div class="lab"><span id="tl">Ateso</span><span id="st"></span></div>
+  <div id="out" class="empty">The translation appears here</div>
+  <div class="acts"><button class="btn" id="copy">Copy</button><button class="btn" id="share">Share</button><button class="btn" id="edit">Suggest a correction</button></div>
+  <div id="fix" class="hide"><textarea id="fixt" style="border:1px solid var(--line);border-radius:6px;padding:8px;min-height:70px" placeholder="Your better translation"></textarea><div class="acts"><button class="btn p" id="fixs">Save correction</button></div></div>
+  <p class="note" id="nt"></p></div>
+ </div>
+</section>
+
+<section id="p-doc" class="hide">
+ <label id="drop" for="file">Drop a .docx, .pdf or .txt file here, or tap to choose one<input id="file" type="file" accept=".docx,.pdf,.txt,.md" hidden></label>
+ <p class="note" id="dinfo"></p>
+ <div class="row hide" id="dctl"><button class="btn p" id="go">Translate document</button><button class="btn hide" id="stop">Stop</button>
+  <button class="btn hide" id="dl-docx">Download Word</button><button class="btn hide" id="dl-txt">Download text</button><label class="note hide" id="bil"><input type="checkbox" id="bilc"> Include original text</label></div>
+ <div class="bar hide" id="bar"><i id="bari"></i></div><p class="note" id="dstat"></p>
+ <div id="pairs"></div>
+</section>
+
+<details style="margin-top:18px"><summary>Review queue (<span id="qn">0</span>)</summary>
+ <p class="note">Corrections stay in this browser and are used here immediately. Export them so a fluent reviewer can approve them before they are used for training.</p><button class="btn" id="exp">Export corrections</button></details>
+<footer>Translations come from Sunbird AI’s hosted Sunflower model, so the text you enter is sent to Sunbird’s servers. Quality for Ateso varies and has not yet been measured by this project; expect errors, especially into Ateso. Do not rely on it for medical, legal or safety-critical text.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const NAME={eng:'English',teo:'Ateso'},LOW=.25;let dirMode='auto',cur={src:'eng',tgt:'teo',out:'',text:''},ctl=null,docData=null,docOut=[];
+async function api(p,opt={}){const r=await fetch('/api/'+p,opt);if(!r.ok)throw Object.assign(new Error(await r.text()||r.statusText),{status:r.status});return r}
+async function awake(){for(let i=0;i<90;i++){try{const h=await(await api('health')).json();if(h.ready){$('wake').classList.add('hide');return true}}catch(e){}$('wake').classList.remove('hide');await new Promise(r=>setTimeout(r,4000))}return false}
+async function detect(t){try{return await(await api('detect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})})).json()}catch(e){return{lang:'unknown'}}}
+async function resolveDir(t){if(dirMode!='auto'){const[s,g]=dirMode.split('-');return{src:s,tgt:g}}const d=await detect(t);const s=d.lang=='teo'?'teo':'eng';return{src:s,tgt:s=='eng'?'teo':'eng',d}}
+async function tr(sents,src,tgt,signal){const r=await api('translate',{method:'POST',signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({sentences:sents,src,tgt})});return(await r.json()).results}
+// sentence splitting mirrors the server for the Text tab
+const chunk=(ss,max=120)=>{const o=[];let b='',n=0;for(const x of ss){const w=x.split(' ').length;if(b&&n+w>max){o.push(b);b='';n=0}b=b?b+' '+x:x;n+=w}if(b)o.push(b);return o};
+const split=t=>t.replace(/\s+/g,' ').trim().split(/(?<=[.!?…]["”’)]?)\s+(?=["“‘(]?[A-Z0-9])/).filter(Boolean);
+function render(parts){return parts.map(p=>p.confidence!=null&&p.confidence<LOW?'<span class="low" title="Model unsure">'+esc(p.text)+'</span>':esc(p.text)).join(' ')}
+let tm,seq=0;
+$('in').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(runText,800)});
+async function runText(){const text=$('in').value.trim(),o=$('out'),my=++seq;$('fix').classList.add('hide');$('det').textContent='';
+ if(!text){o.className='empty';o.textContent='The translation appears here';$('st').textContent='';$('nt').textContent='';cur.out='';return}
+ try{const d=await resolveDir(text);if(my!=seq)return;if(dirMode=='auto')$('det').textContent=d.d&&d.d.lang!='unknown'?'Detected: '+NAME[d.src]+(d.d.confidence<.7?' (unsure)':''):'';
+  $('sl').textContent=NAME[d.src];$('tl').textContent=NAME[d.tgt];$('st').textContent='Translating…';
+  if(!(await awake()))throw new Error('Server did not start');if(my!=seq)return;
+  const paras=text.split(/\n+/).filter(s=>s.trim()),res=[];
+  for(const p of paras){const ss=chunk(split(p)),parts=[];for(let i=0;i<ss.length;i+=3){parts.push(...await tr(ss.slice(i,i+3),d.src,d.tgt))}res.push(parts);if(my!=seq)return}
+  o.className='';o.innerHTML=res.map(render).join('<br><br>');cur={src:d.src,tgt:d.tgt,text,out:res.map(r=>r.map(x=>x.text).join(' ')).join('\n\n')};
+  const low=res.flat().filter(x=>x.confidence!=null&&x.confidence<LOW).length;$('st').textContent='Machine draft';
+  $('nt').textContent=low?low+' part'+(low>1?'s':'')+' underlined: the model was unsure, so check with a speaker.':'';
+ }catch(e){if(my==seq){$('st').textContent='';$('nt').innerHTML='<span class="err">Could not translate: '+esc(e.message.slice(0,160))+'</span>'}}}
+$('clear').onclick=()=>{$('in').value='';seq++;runText();$('in').focus()};
+$('copy').onclick=async()=>{if(!cur.out)return;try{await navigator.clipboard.writeText(cur.out);$('copy').textContent='Copied'}catch(e){$('copy').textContent='Copy failed'}setTimeout(()=>$('copy').textContent='Copy',1400)};
+$('share').onclick=async()=>{if(!cur.out)return;const t=cur.text+'\n\n'+cur.out;try{navigator.share?await navigator.share({text:t}):window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener')}catch(e){}};
+$('edit').onclick=()=>{if(!cur.out)return;$('fix').classList.remove('hide');$('fixt').value=cur.out;$('fixt').focus()};
+let q=[];try{q=JSON.parse(localStorage.getItem('ateso-fixes')||'[]')}catch(e){}$('qn').textContent=q.length;
+$('fixs').onclick=()=>{const v=$('fixt').value.trim();if(!v)return;q.push({src_lang:cur.src,tgt_lang:cur.tgt,source:cur.text,machine:cur.out,correction:v,ts:new Date().toISOString(),reviewed:false});try{localStorage.setItem('ateso-fixes',JSON.stringify(q))}catch(e){}$('qn').textContent=q.length;$('fix').classList.add('hide');$('nt').textContent='Saved for review.'};
+$('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(q,null,1)],{type:'application/json'}));a.download='ateso-corrections.json';a.click()};
+// document mode
+async function loadFile(f){if(!f)return;$('dinfo').textContent='Reading '+f.name+'…';$('pairs').innerHTML='';docOut=[];['go','stop','dl-docx','dl-txt','bil'].forEach(i=>$(i).classList.add('hide'));
+ try{const fd=new FormData();fd.append('file',f);docData=await(await api('extract',{method:'POST',body:fd})).json();docData.name=f.name;docData.paragraphs.forEach(p=>p.chunks=chunk(p.sentences));docData.total=docData.paragraphs.reduce((a,p)=>a+p.chunks.length,0);
+  const d=docData,src=dirMode=='auto'?(d.lang=='teo'?'teo':'eng'):dirMode.split('-')[0];
+  $('dinfo').textContent=d.paragraphs.length+' paragraphs, '+d.words+' words, '+d.sentences+' sentences. Detected '+(d.lang=='unknown'?'language unclear':NAME[d.lang])+'. Translating from '+NAME[src]+'. Long documents can take several minutes.';
+  $('dctl').classList.remove('hide');$('go').classList.remove('hide')}catch(e){docData=null;$('dinfo').innerHTML='<span class="err">'+esc(e.message.slice(0,200))+'</span>'}}
+$('file').onchange=e=>loadFile(e.target.files[0]);
+['dragover','dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.toggle('over',ev=='dragover');if(ev=='drop')loadFile(e.dataTransfer.files[0])}));
+$('go').onclick=async()=>{if(!docData)return;const src=dirMode=='auto'?(docData.lang=='teo'?'teo':'eng'):dirMode.split('-')[0],tgt=src=='eng'?'teo':'eng';
+ ctl=new AbortController();$('go').classList.add('hide');$('stop').classList.remove('hide');$('bar').classList.remove('hide');$('pairs').innerHTML='';docOut=[];
+ if(!(await awake())){$('dstat').textContent='Server did not start. Try again.';return}
+ let done=0,t0=Date.now();const total=docData.total;
+ try{for(const p of docData.paragraphs){const parts=[];for(let i=0;i<p.chunks.length;i+=3){const r=await tr(p.chunks.slice(i,i+3),src,tgt,ctl.signal);parts.push(...r);done+=r.length;
+   const el=(Date.now()-t0)/1000,eta=Math.round(el/done*(total-done));$('bari').style.width=(done/total*100)+'%';$('dstat').textContent=done+' of '+total+' sections. About '+Math.ceil(eta/60)+' min left.'}
+   docOut.push({src:p.text,tgt:parts.map(x=>x.text).join(' '),parts});const d=document.createElement('div');d.className='pair';d.innerHTML='<div class="s">'+esc(p.text)+'</div><div class="t">'+render(parts)+'</div>';$('pairs').appendChild(d)}
+  $('dstat').textContent='Done. Have a fluent speaker review it before relying on it.';['dl-docx','dl-txt','bil'].forEach(i=>$(i).classList.remove('hide'))
+ }catch(e){$('dstat').textContent=e.name=='AbortError'?'Stopped. Partial result below.':'Error: '+e.message.slice(0,150);if(docOut.length)['dl-docx','dl-txt','bil'].forEach(i=>$(i).classList.remove('hide'))}
+ $('stop').classList.add('hide');$('go').classList.remove('hide')};
+$('stop').onclick=()=>ctl&&ctl.abort();
+async function dl(fmt){const r=await api('export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:(docData.name||'Translation').replace(/\.\w+$/,''),format:fmt,bilingual:$('bilc').checked,paragraphs:docOut.map(p=>({src:p.src,tgt:p.tgt}))})});const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='translation.'+fmt;a.click()}
+$('dl-docx').onclick=()=>dl('docx');$('dl-txt').onclick=()=>dl('txt');
+// chrome
+const pick=(box,attr,val)=>[...box.children].forEach(b=>b.classList.toggle('on',b.dataset[attr]==val));
+$('mode').onclick=e=>{const b=e.target.closest('button');if(!b)return;pick($('mode'),'m',b.dataset.m);$('p-text').classList.toggle('hide',b.dataset.m!='text');$('p-doc').classList.toggle('hide',b.dataset.m!='doc')};
+$('dir').onclick=e=>{const b=e.target.closest('button');if(!b)return;dirMode=b.dataset.d;pick($('dir'),'d',dirMode);if(dirMode!='auto'){const[s,g]=dirMode.split('-');$('sl').textContent=NAME[s];$('tl').textContent=NAME[g]}runText()};
+$('swap').onclick=()=>{dirMode=cur.src=='eng'?'teo-eng':'eng-teo';pick($('dir'),'d',dirMode);if(cur.out)$('in').value=cur.out;runText()};
+</script></body></html>

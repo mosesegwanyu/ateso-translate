@@ -1,0 +1,9 @@
+fastapi==0.115.*
+uvicorn[standard]==0.32.*
+python-multipart
+python-docx
+pypdf
+transformers>=4.40,<5
+sentencepiece
+protobuf
+accelerate

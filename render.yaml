@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ateso-translate-api
+    runtime: python
+    plan: free
+    rootDir: services/translator
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - {key: PYTHON_VERSION, value: "3.11.9"}
+      - {key: API_TOKEN, sync: false}
+      - {key: SUNBIRD_TOKEN, sync: false}
+      - {key: SUNBIRD_USERNAME, sync: false}
+      - {key: SUNBIRD_PASSWORD, sync: false}
