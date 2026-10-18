@@ -127,9 +127,9 @@ $('share').onclick=async()=>{if(!cur.out)return;const t=cur.text+'\n\n'+cur.out;
 $('edit').onclick=()=>{if(!cur.out)return;$('fix').style.display='block';$('fixt').value=cur.out;$('fixt').focus()};
 let q=[];try{q=JSON.parse(localStorage.getItem('ateso-fixes')||'[]')}catch(e){}$('qn').textContent=q.length;
 $('fixs').onclick=async()=>{const v=$('fixt').value.trim();if(!v)return;const rec={src_lang:cur.src,tgt_lang:cur.tgt,source:cur.text,machine:cur.out,correction:v,contributor:$('fixn').value.trim(),ts:new Date().toISOString()};let sent=false;
- try{await api('feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)});sent=true}catch(e){}
- if(!sent){q.push(rec);try{localStorage.setItem('ateso-fixes',JSON.stringify(q))}catch(e){}$('qn').textContent=q.length}
- $('fix').style.display='none';$('nt').textContent=sent?'Thank you! Your correction was sent for review.':'We could not send it just now. It is saved on this device.'};
+ let lim=false;try{await api('feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)});sent=true}catch(e){lim=e.status==429}
+ if(!sent&&!lim){q.push(rec);try{localStorage.setItem('ateso-fixes',JSON.stringify(q))}catch(e){}$('qn').textContent=q.length}
+ $('fix').style.display='none';$('nt').textContent=sent?'Thank you! Your correction was sent for review.':lim?'You have sent a lot of corrections. Please try again later.':'We could not send it just now. It is saved on this device.'};
 $('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(q,null,1)],{type:'application/json'}));a.download='ateso-corrections.json';a.click()};
 // documents
 const showDl=on=>$('dl').classList.toggle('hide',!on);
