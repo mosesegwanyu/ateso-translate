@@ -1,0 +1,9 @@
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+dist/
+.wrangler/
+.dev.vars
+eval/review_sheet.csv
+eval/last_scores.json

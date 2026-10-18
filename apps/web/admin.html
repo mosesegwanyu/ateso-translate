@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Review queue</title>
+<style>body{font:15px/1.45 system-ui,sans-serif;margin:0;padding:16px;background:#edf0ea;color:#101a16}@media(prefers-color-scheme:dark){body{background:#0e1512;color:#e9f0ec}table{background:#17211c!important}}
+table{border-collapse:collapse;width:100%;background:#fbfcfa}td,th{border:1px solid #c9d2c8;padding:6px 8px;vertical-align:top;text-align:left}button,input,select{font:inherit;padding:6px 10px;margin:2px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.s{opacity:.7}.wrap{overflow-x:auto}</style></head><body>
+<h1>Review queue</h1><div class="row"><input id="tok" type="password" placeholder="Admin token" autocomplete="off"><input id="me" placeholder="Your name (reviewer)">
+<select id="flt"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="">All</option></select><button id="load">Load</button><button id="ej">Export approved JSON</button><button id="ec">Export approved CSV</button></div>
+<p id="msg"></p><div class="wrap"><table><thead><tr><th>#</th><th>Dir</th><th>Source</th><th>Machine</th><th>Contributor’s correction</th><th>Review</th></tr></thead><tbody id="rows"></tbody></table></div>
+<script>
+const $=id=>document.getElementById(id);$('tok').value=sessionStorage.getItem('at')||'';$('me').value=localStorage.getItem('rn')||'';
+const H=()=>({'Authorization':'Bearer '+$('tok').value.trim(),'Content-Type':'application/json'});
+async function get(st){const r=await fetch('/api/feedback'+(st?'?status='+st:''),{headers:H()});if(!r.ok)throw new Error(r.status==401?'Wrong admin token':'Error '+r.status);return r.json()}
+function td(t,txt){const c=document.createElement('td');c.textContent=txt==null?'':txt;t.appendChild(c);return c}
+async function load(){try{sessionStorage.setItem('at',$('tok').value.trim());localStorage.setItem('rn',$('me').value);const d=await get($('flt').value);$('msg').textContent=d.length+' items';const tb=$('rows');tb.innerHTML='';
+ for(const x of d){const tr=document.createElement('tr');td(tr,x.id);td(tr,x.src_lang+'→'+x.tgt_lang);td(tr,x.source);td(tr,x.machine);const c=td(tr,x.correction);if(x.contributor){const s=document.createElement('div');s.className='s';s.textContent='by '+x.contributor;c.appendChild(s)}
+  const a=document.createElement('td');if(x.reviewed_text&&x.reviewed_text!==x.correction){const s=document.createElement('div');s.textContent='Final: '+x.reviewed_text;a.appendChild(s)}
+  const st=document.createElement('div');st.className='s';st.textContent=x.status+(x.reviewer?' ('+x.reviewer+')':'');a.appendChild(st);
+  for(const [lab,s,ed] of [['Approve','approved',0],['Edit + approve','approved',1],['Reject','rejected',0]]){const b=document.createElement('button');b.textContent=lab;b.onclick=async()=>{let t=x.reviewed_text||x.correction;if(ed){t=prompt('Final text',t);if(t==null)return}
+   await fetch('/api/feedback',{method:'PATCH',headers:H(),body:JSON.stringify({id:x.id,status:s,reviewed_text:s=='approved'?t:null,reviewer:$('me').value})});load()};a.appendChild(b)}
+  tr.appendChild(a);tb.appendChild(tr)}}catch(e){$('msg').textContent=e.message}}
+$('load').onclick=load;
+async function exp(fmt){try{const d=(await get('approved')).map(x=>({id:x.id,src_lang:x.src_lang,tgt_lang:x.tgt_lang,source:x.source,machine:x.machine,reference:x.reviewed_text||x.correction,reviewer:x.reviewer}));
+ let body,type;if(fmt=='json'){body=JSON.stringify(d,null,1);type='application/json'}else{const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';body='\ufeff'+Object.keys(d[0]||{id:0}).join(',')+'\n'+d.map(r=>Object.values(r).map(q).join(',')).join('\n');type='text/csv'}
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type}));a.download='approved-corrections.'+fmt;a.click()}catch(e){$('msg').textContent=e.message}}
+$('ej').onclick=()=>exp('json');$('ec').onclick=()=>exp('csv');
+</script></body></html>

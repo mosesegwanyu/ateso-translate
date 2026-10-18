@@ -20,6 +20,14 @@ Browser ── Cloudflare Pages (apps/web) ── /api/* Pages Function ──�
 3. **Website on Cloudflare Pages:** connect the repo, root directory `apps/web`, no build command, output directory `.`. Env vars: `TRANSLATOR_URL` (your Render URL) and `TRANSLATOR_TOKEN` (= `API_TOKEN`). Add a rate-limit rule on `/api/*`.
 4. Local test: `cd services/translator && pip install -r requirements.txt && SUNBIRD_TOKEN=... API_TOKEN= uvicorn app.main:app --port 7860`.
 
+## Shared review queue (testers' corrections)
+Corrections go to Cloudflare D1 through `apps/web/functions/api/feedback.js`; reviewers use `/admin.html`.
+1. Cloudflare → Storage & Databases → D1 → create `ateso-translate-db`. Open its Console and run `schema.sql`.
+2. Pages project → Settings → Bindings → add D1 binding, variable name `DB`, pick that database.
+3. Pages project → Settings → Variables and Secrets → add secret `ADMIN_TOKEN` (long random string; shared by reviewers for now).
+4. Redeploy. Open `/admin.html`, enter the admin token, review (approve / edit + approve / reject), export approved as JSON or CSV.
+Better later: put `/admin.html` and `PATCH/GET /api/feedback` behind Cloudflare Access (Google login per reviewer). The site is `noindex` while testing; remove that header in `apps/web/_headers` to launch publicly.
+
 ## Build the gold benchmark (what funders will ask for)
 1. `python tools/make_review_sheet.py <salt/v1.2> 500` → `eval/review_sheet.csv`
 2. Two fluent Ateso speakers fix the `ateso_corrected` column and set `status`. Have them double-review 10% to measure agreement.

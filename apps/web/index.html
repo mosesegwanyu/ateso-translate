@@ -1,125 +1,161 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ateso Translate</title><meta name="description" content="English and Ateso translation for text and full documents.">
+<meta name="theme-color" content="#14382c">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Ateso Translate: English and Ateso, made simple</title>
+<meta name="description" content="Translate between English and Ateso. Type a sentence or upload a whole document.">
 <style>
-:root{--bg:#edf0ea;--card:#fbfcfa;--ink:#101a16;--mute:#56645d;--line:#d3dbd2;--acc:#17352b;--accw:#fbfcfa;--sun:#e7b416;--low:#b5651d;--bad:#a02b2b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1512;--card:#17211c;--ink:#e9f0ec;--mute:#99a8a0;--line:#2a3831;--acc:#e7b416;--accw:#101a16;--low:#f0a95b;--bad:#f08a8a}}
-:root[data-theme="dark"]{--bg:#0e1512;--card:#17211c;--ink:#e9f0ec;--mute:#99a8a0;--line:#2a3831;--acc:#e7b416;--accw:#101a16;--low:#f0a95b;--bad:#f08a8a}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:1000px;margin:0 auto;padding:18px 16px 40px}
-h1{font:700 1.7rem/1.15 Charter,"Iowan Old Style",Georgia,serif;margin:6px 0 4px}.sub{color:var(--mute);margin:0 0 18px;max-width:60ch}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
-.seg button{border:0;background:none;color:var(--ink);padding:9px 14px;font:inherit;cursor:pointer}.seg button.on{background:var(--acc);color:var(--accw)}
-button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
-.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 12px;font:inherit;font-size:.9rem;cursor:pointer}.btn:hover{border-color:var(--acc)}.btn.p{background:var(--acc);color:var(--accw);border-color:var(--acc)}.btn:disabled{opacity:.5;cursor:not-allowed}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:720px){.grid{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-height:200px;display:flex;flex-direction:column;gap:6px}
-.lab{font-size:.85rem;color:var(--mute);display:flex;justify-content:space-between;gap:8px}
-textarea{flex:1;min-height:150px;width:100%;border:0;outline:0;resize:vertical;background:none;color:var(--ink);font:inherit;font-size:1.1rem}
-#out,.seg-out{flex:1;font:1.12rem/1.6 Charter,"Iowan Old Style",Georgia,serif;white-space:pre-wrap;min-height:150px}.empty{color:var(--mute)}
+:root{--bg:#f4f6f1;--card:#fff;--ink:#14201a;--mute:#5c6b63;--line:#dbe2d9;--g:#14382c;--g2:#1f5441;--gw:#fff;--sun:#e3a81b;--soft:#e9efe7;--bad:#a02b2b;--low:#b5651d;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1511;--card:#16211b;--ink:#eaf1ec;--mute:#9baba2;--line:#27352d;--g:#e3a81b;--g2:#f0bb3d;--gw:#14201a;--soft:#1d2b23;--bad:#f08a8a;--low:#f0a95b}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{background:#14382c;color:#fff;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 0;border-bottom:4px solid var(--sun)}
+.top>div{max-width:980px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font:700 1.15rem Charter,"Iowan Old Style",Georgia,serif;letter-spacing:.2px}
+.hero{padding:22px 0 30px}.hero h1{font:700 clamp(1.9rem,6.5vw,2.9rem)/1.1 Charter,"Iowan Old Style",Georgia,serif;margin:0 0 10px;max-width:16ch}
+.hero p{margin:0;max-width:44ch;color:#d5e3da;font-size:1.05rem}
+main{max-width:980px;margin:0 auto;padding:0 14px 40px;margin-top:-16px}
+.tabs{display:flex;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.tabs button{flex:1;border:0;background:none;color:var(--mute);font-weight:600;font-size:1rem;font-family:inherit;padding:12px 8px;border-radius:10px;cursor:pointer;min-height:48px}
+.tabs button.on{background:var(--g);color:var(--gw)}
+.lang{display:flex;align-items:center;gap:8px;margin:14px 0 10px}
+.lang .n{flex:1;text-align:center;font-weight:700;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 6px;min-height:48px}
+.swap{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.3rem;cursor:pointer}
+.swap:active{background:var(--soft)}
+.auto{display:flex;align-items:center;gap:8px;margin:0 2px 12px;font-size:.92rem;color:var(--mute)}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:8px 14px;font:inherit;font-size:.92rem;cursor:pointer;min-height:40px}
+.chip.on{background:var(--soft);border-color:var(--g2);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.card .l{font-size:.85rem;color:var(--mute);margin-bottom:4px;display:flex;justify-content:space-between;gap:8px}
+textarea{display:block;width:100%;min-height:150px;border:0;outline:0;resize:vertical;background:none;color:var(--ink);font:1.2rem/1.5 Charter,"Iowan Old Style",Georgia,serif}
+::placeholder{color:var(--mute);opacity:.8}
+#out{font:1.22rem/1.6 Charter,"Iowan Old Style",Georgia,serif;white-space:pre-wrap;min-height:110px}.empty{color:var(--mute)}
 .low{border-bottom:2px dotted var(--low)}
-.acts{display:flex;gap:6px;flex-wrap:wrap}
-.note{font-size:.88rem;color:var(--mute);margin:4px 0}.err{color:var(--bad)}
-#drop{border:2px dashed var(--line);border-radius:8px;padding:28px 16px;text-align:center;color:var(--mute);background:var(--card);cursor:pointer}#drop.over{border-color:var(--acc)}
-.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .3s}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}@media(max-width:720px){.pair{grid-template-columns:1fr}}
-.pair .s{color:var(--mute)}.pair .t{font-family:Charter,Georgia,serif;font-size:1.05rem}
-.hide{display:none}footer{color:var(--mute);font-size:.82rem;margin-top:26px;max-width:75ch}
-</style></head><body><main>
-<h1>Ateso Translate</h1>
-<p class="sub">Translate between English and Ateso, from a single sentence to a full document. Results are machine drafts; the page shows where the model is unsure.</p>
-<div id="wake" class="note hide">The translation server is waking up. On the free plan this can take a few minutes.</div>
-<div class="row">
- <div class="seg" id="mode"><button data-m="text" class="on">Text</button><button data-m="doc">Document</button></div>
- <div class="seg" id="dir"><button data-d="auto" class="on">Detect language</button><button data-d="eng-teo">English to Ateso</button><button data-d="teo-eng">Ateso to English</button></div>
- <button class="btn" id="swap">Swap</button>
-</div>
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 16px;font:inherit;font-size:.98rem;cursor:pointer;min-height:44px}
+.btn.p{background:var(--g);color:var(--gw);border-color:var(--g);font-weight:700}.btn:disabled{opacity:.5}
+button:focus-visible,textarea:focus-visible,input:focus-visible,label:focus-within{outline:3px solid var(--sun);outline-offset:2px}
+.ex{margin:2px 0 14px}.ex b{display:block;font-size:.85rem;color:var(--mute);font-weight:600;margin-bottom:6px}.ex .row{margin:0}
+.note{font-size:.92rem;color:var(--mute);margin:8px 0 0}.err{color:var(--bad)}
+.fixbox{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.fixbox textarea{min-height:80px;font-size:1.05rem;border:1px solid var(--line);border-radius:10px;padding:10px}
+.fixbox input{width:100%;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:10px;background:none;color:var(--ink);font:inherit}
+#drop{display:block;text-align:center;border:2px dashed var(--line);border-radius:16px;padding:34px 16px;background:var(--card);cursor:pointer}
+#drop.over{border-color:var(--g2);background:var(--soft)}#drop strong{display:block;font:700 1.2rem Charter,Georgia,serif;margin:6px 0 2px}#drop span{color:var(--mute);font-size:.95rem}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:12px 0 6px}.bar i{display:block;height:100%;width:0;background:var(--sun);transition:width .3s}
+.pair{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}.pair .s{color:var(--mute);font-size:.95rem;margin-bottom:6px}.pair .t{font:1.1rem/1.6 Charter,Georgia,serif}
+.hide{display:none!important}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0 0;text-align:center;font-size:.9rem;color:var(--mute)}.how b{display:block;color:var(--ink)}
+footer{max-width:980px;margin:0 auto;padding:0 18px 36px;color:var(--mute);font-size:.85rem}footer details{margin-top:8px}
+@media(min-width:820px){.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.two .card{margin:0}}
+</style></head><body>
+<header class="top"><div>
+ <div class="brand"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="11" cy="15" r="9" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="19" cy="15" r="9" fill="#e3a81b" fill-opacity=".9"/></svg>Ateso Translate</div>
+ <div class="hero"><h1>Ateso and English, made simple.</h1><p>Type a sentence or upload a whole document, and read it in the other language.</p></div>
+</div></header>
+<main>
+<div class="tabs" role="tablist"><button id="t-text" class="on" role="tab">Type text</button><button id="t-doc" role="tab">Upload a document</button></div>
+<div id="wake" class="note hide">Getting ready… the first translation of the day can take a minute.</div>
+<div class="lang"><div class="n" id="from">English</div><button class="swap" id="swap" aria-label="Swap languages">⇄</button><div class="n" id="to">Ateso</div></div>
+<div class="auto"><button class="chip on" id="auto" aria-pressed="true">✓ Auto-detect language</button><span id="det"></span></div>
 
 <section id="p-text">
- <div class="grid">
-  <div class="card"><div class="lab"><span id="sl">English</span><span id="det"></span></div>
-  <textarea id="in" placeholder="Type or paste text" spellcheck="false"></textarea>
-  <div class="acts"><button class="btn" id="clear">Clear</button></div></div>
-  <div class="card"><div class="lab"><span id="tl">Ateso</span><span id="st"></span></div>
-  <div id="out" class="empty">The translation appears here</div>
-  <div class="acts"><button class="btn" id="copy">Copy</button><button class="btn" id="share">Share</button><button class="btn" id="edit">Suggest a correction</button></div>
-  <div id="fix" class="hide"><textarea id="fixt" style="border:1px solid var(--line);border-radius:6px;padding:8px;min-height:70px" placeholder="Your better translation"></textarea><div class="acts"><button class="btn p" id="fixs">Save correction</button></div></div>
-  <p class="note" id="nt"></p></div>
+ <div class="two">
+  <div class="card"><div class="l"><span>Your text</span></div>
+   <textarea id="in" placeholder="Type or paste something here…" spellcheck="false" aria-label="Text to translate"></textarea>
+   <div class="row"><button class="btn" id="clear">Clear</button></div></div>
+  <div class="card"><div class="l"><span>Translation</span><span id="st"></span></div>
+   <div id="out" class="empty" aria-live="polite">Your translation will appear here.</div>
+   <div class="row"><button class="btn p" id="copy">Copy</button><button class="btn" id="share">Share</button><button class="btn" id="edit">Suggest a better translation</button></div>
+   <div class="fixbox" id="fix"><textarea id="fixt" placeholder="Write the translation you think is right" aria-label="Your correction"></textarea>
+    <input id="fixn" placeholder="Your name (optional)" maxlength="80">
+    <p class="note">When you send this, the original text, our translation and yours are saved so fluent reviewers can check them and help improve Ateso translation. Please don’t include personal information.</p>
+    <div class="row"><button class="btn p" id="fixs">Send</button></div></div>
+   <p class="note" id="nt"></p></div>
  </div>
+ <div class="ex" style="margin-top:14px"><b>Not sure where to start? Try one:</b><div class="row">
+  <button class="chip" data-x="Good morning, how are you?">Good morning, how are you?</button>
+  <button class="chip" data-x="Where is the nearest clinic?">Where is the nearest clinic?</button>
+  <button class="chip" data-x="Thank you for your help.">Thank you for your help.</button></div></div>
 </section>
 
 <section id="p-doc" class="hide">
- <label id="drop" for="file">Drop a .docx, .pdf or .txt file here, or tap to choose one<input id="file" type="file" accept=".docx,.pdf,.txt,.md" hidden></label>
+ <label id="drop" for="file"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 17v-6m-3 3 3-3 3 3"/></svg><strong>Choose a document</strong><span>Word, PDF or text file. Or drop it here.</span><input id="file" type="file" accept=".docx,.pdf,.txt,.md" hidden></label>
  <p class="note" id="dinfo"></p>
- <div class="row hide" id="dctl"><button class="btn p" id="go">Translate document</button><button class="btn hide" id="stop">Stop</button>
-  <button class="btn hide" id="dl-docx">Download Word</button><button class="btn hide" id="dl-txt">Download text</button><label class="note hide" id="bil"><input type="checkbox" id="bilc"> Include original text</label></div>
+ <div class="row hide" id="dctl"><button class="btn p" id="go">Translate document</button><button class="btn hide" id="stop">Stop</button></div>
  <div class="bar hide" id="bar"><i id="bari"></i></div><p class="note" id="dstat"></p>
- <div id="pairs"></div>
+ <div class="row hide" id="dl"><button class="btn p" id="dl-docx">Download as Word</button><button class="btn" id="dl-txt">Download as text</button><label class="chip"><input type="checkbox" id="bilc"> Include original</label></div>
+ <div id="pairs" style="margin-top:12px"></div>
 </section>
 
-<details style="margin-top:18px"><summary>Review queue (<span id="qn">0</span>)</summary>
- <p class="note">Corrections stay in this browser and are used here immediately. Export them so a fluent reviewer can approve them before they are used for training.</p><button class="btn" id="exp">Export corrections</button></details>
-<footer>Translations come from Sunbird AI’s hosted Sunflower model, so the text you enter is sent to Sunbird’s servers. Quality for Ateso varies and has not yet been measured by this project; expect errors, especially into Ateso. Do not rely on it for medical, legal or safety-critical text.</footer>
+<div class="how"><div><b>1. Write</b>or upload</div><div><b>2. Read</b>instantly</div><div><b>3. Improve</b>send a correction</div></div>
 </main>
+<footer><p>Translations are drafts made by computer with Sunbird AI’s models, so the text you enter is sent to Sunbird to be translated. Mistakes happen, especially into Ateso. Please ask a fluent speaker to check anything important.</p>
+<details><summary>Corrections not yet sent (<span id="qn">0</span>)</summary><p>If sending fails, corrections wait in this browser.</p><button class="btn" id="exp">Download them</button></details></footer>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const NAME={eng:'English',teo:'Ateso'},LOW=.25;let dirMode='auto',cur={src:'eng',tgt:'teo',out:'',text:''},ctl=null,docData=null,docOut=[];
+const labels=(s,t)=>{$('from').textContent=NAME[s];$('to').textContent=NAME[t]};
+const setAuto=on=>{$('auto').classList.toggle('on',on);$('auto').setAttribute('aria-pressed',on);$('auto').textContent=(on?'✓ ':'')+'Auto-detect language'};
 async function api(p,opt={}){const r=await fetch('/api/'+p,opt);if(!r.ok)throw Object.assign(new Error(await r.text()||r.statusText),{status:r.status});return r}
 async function awake(){for(let i=0;i<90;i++){try{const h=await(await api('health')).json();if(h.ready){$('wake').classList.add('hide');return true}}catch(e){}$('wake').classList.remove('hide');await new Promise(r=>setTimeout(r,4000))}return false}
 async function detect(t){try{return await(await api('detect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})})).json()}catch(e){return{lang:'unknown'}}}
 async function resolveDir(t){if(dirMode!='auto'){const[s,g]=dirMode.split('-');return{src:s,tgt:g}}const d=await detect(t);const s=d.lang=='teo'?'teo':'eng';return{src:s,tgt:s=='eng'?'teo':'eng',d}}
 async function tr(sents,src,tgt,signal){const r=await api('translate',{method:'POST',signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({sentences:sents,src,tgt})});return(await r.json()).results}
-// sentence splitting mirrors the server for the Text tab
 const chunk=(ss,max=120)=>{const o=[];let b='',n=0;for(const x of ss){const w=x.split(' ').length;if(b&&n+w>max){o.push(b);b='';n=0}b=b?b+' '+x:x;n+=w}if(b)o.push(b);return o};
 const split=t=>t.replace(/\s+/g,' ').trim().split(/(?<=[.!?…]["”’)]?)\s+(?=["“‘(]?[A-Z0-9])/).filter(Boolean);
-function render(parts){return parts.map(p=>p.confidence!=null&&p.confidence<LOW?'<span class="low" title="Model unsure">'+esc(p.text)+'</span>':esc(p.text)).join(' ')}
+const render=parts=>parts.map(p=>p.confidence!=null&&p.confidence<LOW?'<span class="low" title="The model was unsure here">'+esc(p.text)+'</span>':esc(p.text)).join(' ');
+const friendly=m=>/429|rate|busy/i.test(m)?'Lots of people are translating right now. Please try again in a minute.':/401|Unauthorized/i.test(m)?'The service is not set up correctly yet. Please tell the site owner.':'Something went wrong. Please try again.';
 let tm,seq=0;
 $('in').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(runText,800)});
-async function runText(){const text=$('in').value.trim(),o=$('out'),my=++seq;$('fix').classList.add('hide');$('det').textContent='';
- if(!text){o.className='empty';o.textContent='The translation appears here';$('st').textContent='';$('nt').textContent='';cur.out='';return}
- try{const d=await resolveDir(text);if(my!=seq)return;if(dirMode=='auto')$('det').textContent=d.d&&d.d.lang!='unknown'?'Detected: '+NAME[d.src]+(d.d.confidence<.7?' (unsure)':''):'';
-  $('sl').textContent=NAME[d.src];$('tl').textContent=NAME[d.tgt];$('st').textContent='Translating…';
-  if(!(await awake()))throw new Error('Server did not start');if(my!=seq)return;
-  const paras=text.split(/\n+/).filter(s=>s.trim()),res=[];
-  for(const p of paras){const ss=chunk(split(p)),parts=[];for(let i=0;i<ss.length;i+=3){parts.push(...await tr(ss.slice(i,i+3),d.src,d.tgt))}res.push(parts);if(my!=seq)return}
+async function runText(){const text=$('in').value.trim(),o=$('out'),my=++seq;$('fix').style.display='none';$('det').textContent='';
+ if(!text){o.className='empty';o.textContent='Your translation will appear here.';$('st').textContent='';$('nt').textContent='';cur.out='';return}
+ try{const d=await resolveDir(text);if(my!=seq)return;labels(d.src,d.tgt);if(dirMode=='auto'&&d.d&&d.d.lang!='unknown')$('det').textContent='Looks like '+NAME[d.src]+(d.d.confidence<.7?' (not sure)':'');
+  $('st').textContent='Translating…';if(!(await awake()))throw new Error('Server did not start');if(my!=seq)return;
+  const res=[];for(const p of text.split(/\n+/).filter(s=>s.trim())){const ss=chunk(split(p)),parts=[];for(let i=0;i<ss.length;i+=3)parts.push(...await tr(ss.slice(i,i+3),d.src,d.tgt));res.push(parts);if(my!=seq)return}
   o.className='';o.innerHTML=res.map(render).join('<br><br>');cur={src:d.src,tgt:d.tgt,text,out:res.map(r=>r.map(x=>x.text).join(' ')).join('\n\n')};
-  const low=res.flat().filter(x=>x.confidence!=null&&x.confidence<LOW).length;$('st').textContent='Machine draft';
-  $('nt').textContent=low?low+' part'+(low>1?'s':'')+' underlined: the model was unsure, so check with a speaker.':'';
- }catch(e){if(my==seq){$('st').textContent='';$('nt').innerHTML='<span class="err">Could not translate: '+esc(e.message.slice(0,160))+'</span>'}}}
+  const low=res.flat().filter(x=>x.confidence!=null&&x.confidence<LOW).length;$('st').textContent='Draft';
+  $('nt').textContent=low?'Underlined parts are less certain. Please check them with a speaker.':'This is a computer draft. For important text, ask a fluent speaker to check it.';
+ }catch(e){if(my==seq){$('st').textContent='';$('nt').innerHTML='<span class="err">'+esc(friendly(e.message||''))+'</span>'}}}
 $('clear').onclick=()=>{$('in').value='';seq++;runText();$('in').focus()};
-$('copy').onclick=async()=>{if(!cur.out)return;try{await navigator.clipboard.writeText(cur.out);$('copy').textContent='Copied'}catch(e){$('copy').textContent='Copy failed'}setTimeout(()=>$('copy').textContent='Copy',1400)};
+document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{$('in').value=b.dataset.x;setAuto(true);dirMode='auto';runText()});
+$('copy').onclick=async()=>{if(!cur.out)return;try{await navigator.clipboard.writeText(cur.out);$('copy').textContent='Copied ✓'}catch(e){$('copy').textContent='Could not copy'}setTimeout(()=>$('copy').textContent='Copy',1500)};
 $('share').onclick=async()=>{if(!cur.out)return;const t=cur.text+'\n\n'+cur.out;try{navigator.share?await navigator.share({text:t}):window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener')}catch(e){}};
-$('edit').onclick=()=>{if(!cur.out)return;$('fix').classList.remove('hide');$('fixt').value=cur.out;$('fixt').focus()};
+$('edit').onclick=()=>{if(!cur.out)return;$('fix').style.display='block';$('fixt').value=cur.out;$('fixt').focus()};
 let q=[];try{q=JSON.parse(localStorage.getItem('ateso-fixes')||'[]')}catch(e){}$('qn').textContent=q.length;
-$('fixs').onclick=()=>{const v=$('fixt').value.trim();if(!v)return;q.push({src_lang:cur.src,tgt_lang:cur.tgt,source:cur.text,machine:cur.out,correction:v,ts:new Date().toISOString(),reviewed:false});try{localStorage.setItem('ateso-fixes',JSON.stringify(q))}catch(e){}$('qn').textContent=q.length;$('fix').classList.add('hide');$('nt').textContent='Saved for review.'};
+$('fixs').onclick=async()=>{const v=$('fixt').value.trim();if(!v)return;const rec={src_lang:cur.src,tgt_lang:cur.tgt,source:cur.text,machine:cur.out,correction:v,contributor:$('fixn').value.trim(),ts:new Date().toISOString()};let sent=false;
+ try{await api('feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)});sent=true}catch(e){}
+ if(!sent){q.push(rec);try{localStorage.setItem('ateso-fixes',JSON.stringify(q))}catch(e){}$('qn').textContent=q.length}
+ $('fix').style.display='none';$('nt').textContent=sent?'Thank you! Your correction was sent for review.':'We could not send it just now. It is saved on this device.'};
 $('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(q,null,1)],{type:'application/json'}));a.download='ateso-corrections.json';a.click()};
-// document mode
-async function loadFile(f){if(!f)return;$('dinfo').textContent='Reading '+f.name+'…';$('pairs').innerHTML='';docOut=[];['go','stop','dl-docx','dl-txt','bil'].forEach(i=>$(i).classList.add('hide'));
+// documents
+const showDl=on=>$('dl').classList.toggle('hide',!on);
+async function loadFile(f){if(!f)return;$('dinfo').textContent='Reading '+f.name+'…';$('pairs').innerHTML='';docOut=[];showDl(false);$('stop').classList.add('hide');$('bar').classList.add('hide');$('dstat').textContent='';
  try{const fd=new FormData();fd.append('file',f);docData=await(await api('extract',{method:'POST',body:fd})).json();docData.name=f.name;docData.paragraphs.forEach(p=>p.chunks=chunk(p.sentences));docData.total=docData.paragraphs.reduce((a,p)=>a+p.chunks.length,0);
-  const d=docData,src=dirMode=='auto'?(d.lang=='teo'?'teo':'eng'):dirMode.split('-')[0];
-  $('dinfo').textContent=d.paragraphs.length+' paragraphs, '+d.words+' words, '+d.sentences+' sentences. Detected '+(d.lang=='unknown'?'language unclear':NAME[d.lang])+'. Translating from '+NAME[src]+'. Long documents can take several minutes.';
-  $('dctl').classList.remove('hide');$('go').classList.remove('hide')}catch(e){docData=null;$('dinfo').innerHTML='<span class="err">'+esc(e.message.slice(0,200))+'</span>'}}
+  const d=docData,src=dirMode=='auto'?(d.lang=='teo'?'teo':'eng'):dirMode.split('-')[0];labels(src,src=='eng'?'teo':'eng');
+  $('dinfo').textContent=f.name+': '+d.words+' words. Looks like '+(d.lang=='unknown'?'an unknown language':NAME[d.lang])+'. Long documents can take a few minutes.';$('dctl').classList.remove('hide');$('go').classList.remove('hide')}
+ catch(e){docData=null;$('dctl').classList.add('hide');$('dinfo').innerHTML='<span class="err">'+esc((e.message||'').slice(0,200)||'Could not read this file.')+'</span>'}}
 $('file').onchange=e=>loadFile(e.target.files[0]);
 ['dragover','dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.toggle('over',ev=='dragover');if(ev=='drop')loadFile(e.dataTransfer.files[0])}));
 $('go').onclick=async()=>{if(!docData)return;const src=dirMode=='auto'?(docData.lang=='teo'?'teo':'eng'):dirMode.split('-')[0],tgt=src=='eng'?'teo':'eng';
- ctl=new AbortController();$('go').classList.add('hide');$('stop').classList.remove('hide');$('bar').classList.remove('hide');$('pairs').innerHTML='';docOut=[];
- if(!(await awake())){$('dstat').textContent='Server did not start. Try again.';return}
- let done=0,t0=Date.now();const total=docData.total;
+ ctl=new AbortController();$('go').classList.add('hide');$('stop').classList.remove('hide');$('bar').classList.remove('hide');$('pairs').innerHTML='';docOut=[];showDl(false);
+ if(!(await awake())){$('dstat').textContent='The service did not start. Please try again.';$('stop').classList.add('hide');$('go').classList.remove('hide');return}
+ let done=0;const t0=Date.now(),total=docData.total;
  try{for(const p of docData.paragraphs){const parts=[];for(let i=0;i<p.chunks.length;i+=3){const r=await tr(p.chunks.slice(i,i+3),src,tgt,ctl.signal);parts.push(...r);done+=r.length;
-   const el=(Date.now()-t0)/1000,eta=Math.round(el/done*(total-done));$('bari').style.width=(done/total*100)+'%';$('dstat').textContent=done+' of '+total+' sections. About '+Math.ceil(eta/60)+' min left.'}
-   docOut.push({src:p.text,tgt:parts.map(x=>x.text).join(' '),parts});const d=document.createElement('div');d.className='pair';d.innerHTML='<div class="s">'+esc(p.text)+'</div><div class="t">'+render(parts)+'</div>';$('pairs').appendChild(d)}
-  $('dstat').textContent='Done. Have a fluent speaker review it before relying on it.';['dl-docx','dl-txt','bil'].forEach(i=>$(i).classList.remove('hide'))
- }catch(e){$('dstat').textContent=e.name=='AbortError'?'Stopped. Partial result below.':'Error: '+e.message.slice(0,150);if(docOut.length)['dl-docx','dl-txt','bil'].forEach(i=>$(i).classList.remove('hide'))}
+   const eta=Math.round((Date.now()-t0)/1000/done*(total-done));$('bari').style.width=(done/total*100)+'%';$('dstat').textContent='Translating… about '+Math.max(1,Math.ceil(eta/60))+' min left'}
+   docOut.push({src:p.text,tgt:parts.map(x=>x.text).join(' ')});const d=document.createElement('div');d.className='pair';d.innerHTML='<div class="s">'+esc(p.text)+'</div><div class="t">'+render(parts)+'</div>';$('pairs').appendChild(d)}
+  $('dstat').textContent='All done. Please have a fluent speaker review it before you rely on it.';showDl(true)
+ }catch(e){$('dstat').textContent=e.name=='AbortError'?'Stopped. What was finished is shown below.':friendly(e.message||'');if(docOut.length)showDl(true)}
  $('stop').classList.add('hide');$('go').classList.remove('hide')};
 $('stop').onclick=()=>ctl&&ctl.abort();
-async function dl(fmt){const r=await api('export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:(docData.name||'Translation').replace(/\.\w+$/,''),format:fmt,bilingual:$('bilc').checked,paragraphs:docOut.map(p=>({src:p.src,tgt:p.tgt}))})});const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='translation.'+fmt;a.click()}
+async function dl(fmt){try{const r=await api('export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:(docData.name||'Translation').replace(/\.\w+$/,''),format:fmt,bilingual:$('bilc').checked,paragraphs:docOut})});const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='translation.'+fmt;a.click()}catch(e){$('dstat').textContent='Could not create the file. Please try again.'}}
 $('dl-docx').onclick=()=>dl('docx');$('dl-txt').onclick=()=>dl('txt');
 // chrome
-const pick=(box,attr,val)=>[...box.children].forEach(b=>b.classList.toggle('on',b.dataset[attr]==val));
-$('mode').onclick=e=>{const b=e.target.closest('button');if(!b)return;pick($('mode'),'m',b.dataset.m);$('p-text').classList.toggle('hide',b.dataset.m!='text');$('p-doc').classList.toggle('hide',b.dataset.m!='doc')};
-$('dir').onclick=e=>{const b=e.target.closest('button');if(!b)return;dirMode=b.dataset.d;pick($('dir'),'d',dirMode);if(dirMode!='auto'){const[s,g]=dirMode.split('-');$('sl').textContent=NAME[s];$('tl').textContent=NAME[g]}runText()};
-$('swap').onclick=()=>{dirMode=cur.src=='eng'?'teo-eng':'eng-teo';pick($('dir'),'d',dirMode);if(cur.out)$('in').value=cur.out;runText()};
+const tab=t=>{$('p-text').classList.toggle('hide',t!='text');$('p-doc').classList.toggle('hide',t!='doc');$('t-text').classList.toggle('on',t=='text');$('t-doc').classList.toggle('on',t=='doc')};
+$('t-text').onclick=()=>tab('text');$('t-doc').onclick=()=>tab('doc');
+$('auto').onclick=()=>{dirMode='auto';setAuto(true);runText()};
+$('swap').onclick=()=>{const s=cur.src=='eng'?'teo':'eng';dirMode=s+'-'+(s=='eng'?'teo':'eng');setAuto(false);cur.src=s;cur.tgt=s=='eng'?'teo':'eng';labels(cur.src,cur.tgt);if(cur.out)$('in').value=cur.out;runText()};
 </script></body></html>
