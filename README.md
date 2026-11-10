@@ -7,6 +7,9 @@ Browser ── Cloudflare Pages (apps/web) ── /api/* Pages Function ──�
                 static UI                     hides URL + token            FastAPI → Sunbird AI API
 ```
 
+## Architecture update: text translation runs on Cloudflare
+`functions/api/translate.js`, `detect.js` and `health.js` now call Sunbird directly, so everyday use needs no Render hours and no waking-up delay. Render (`services/translator`) is only used for reading Word/PDF files and creating Word downloads; `.txt` upload and download work without it. Set `SUNBIRD_TOKEN` (and optionally `SUNBIRD_USERNAME`/`SUNBIRD_PASSWORD`) as secrets in the Cloudflare Pages project. `TRANSLATOR_URL`/`TRANSLATOR_TOKEN` are still needed for Word/PDF. With the `DB` binding present, translations are cached in table `translation_cache` (created automatically; stores a hash of the source text plus the translation) to save Sunbird quota. No keep-awake pings are needed for the Ateso site.
+
 ## Honest status
 - Engine: Sunbird AI's hosted API (`POST /tasks/translate`, model `sunflower-9b`), free account, rate-limited. Hugging Face Docker Spaces now need a paid plan, so the model is not self-hosted. A self-hosted option (`ENGINE=local`, `Dockerfile.selfhost`, Sunbird's NLLB fine-tune) is kept for when there is funding or a GPU.
 - Privacy: text you translate is sent to Sunbird's servers. Say so to users (the footer does) and read Sunbird's terms.
@@ -27,6 +30,9 @@ Corrections go to Cloudflare D1 through `apps/web/functions/api/feedback.js`; re
 3. Pages project → Settings → Variables and Secrets → add secret `ADMIN_TOKEN` (long random string; shared by reviewers for now).
 4. Redeploy. Open `/admin.html`, enter the admin token, review (approve / edit + approve / reject), export approved as JSON or CSV.
 Better later: put `/admin.html` and `PATCH/GET /api/feedback` behind Cloudflare Access (Google login per reviewer). The site is `noindex` while testing; remove that header in `apps/web/_headers` to launch publicly.
+
+## Reviewed translations (corrections that actually reach users)
+Approved corrections are served to everyone: `functions/api/reviewed.js` returns an approved translation when the typed text (or one of its sentences) matches an approved source, ignoring capitals and punctuation. Matches are shown highlighted and labelled "checked by a fluent speaker"; everything else still goes to Sunbird. Details: matching is exact-sentence only; approvals go live within about a minute; "Reject" in `/admin.html` takes one down; the latest approval for the same text wins; if the database is unavailable the site falls back to Sunbird. No database changes are needed beyond `schema.sql`.
 
 ## Build the gold benchmark (what funders will ask for)
 1. `python tools/make_review_sheet.py <salt/v1.2> 500` → `eval/review_sheet.csv`

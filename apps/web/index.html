@@ -33,7 +33,7 @@ main{max-width:980px;margin:0 auto;padding:0 14px 40px;margin-top:-16px}
 textarea{display:block;width:100%;min-height:150px;border:0;outline:0;resize:vertical;background:none;color:var(--ink);font:1.2rem/1.5 Charter,"Iowan Old Style",Georgia,serif}
 ::placeholder{color:var(--mute);opacity:.8}
 #out{font:1.22rem/1.6 Charter,"Iowan Old Style",Georgia,serif;white-space:pre-wrap;min-height:110px}.empty{color:var(--mute)}
-.low{border-bottom:2px dotted var(--low)}
+.low{border-bottom:2px dotted var(--low)}.rev{background:linear-gradient(transparent 62%,rgba(227,168,27,.45) 62%)}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 16px;font:inherit;font-size:.98rem;cursor:pointer;min-height:44px}
 .btn.p{background:var(--g);color:var(--gw);border-color:var(--g);font-weight:700}.btn:disabled{opacity:.5}
@@ -105,9 +105,16 @@ async function awake(){for(let i=0;i<90;i++){try{const h=await(await api('health
 async function detect(t){try{return await(await api('detect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})})).json()}catch(e){return{lang:'unknown'}}}
 async function resolveDir(t){if(dirMode!='auto'){const[s,g]=dirMode.split('-');return{src:s,tgt:g}}const d=await detect(t);const s=d.lang=='teo'?'teo':'eng';return{src:s,tgt:s=='eng'?'teo':'eng',d}}
 async function tr(sents,src,tgt,signal){const r=await api('translate',{method:'POST',signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({sentences:sents,src,tgt})});return(await r.json()).results}
+async function lookup(list,src,tgt){try{return(await(await api('reviewed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sentences:list,src,tgt})})).json()).matches}catch(e){return list.map(()=>null)}}
+const wc=t=>t.split(/\s+/).filter(Boolean).length;
+async function trPara(p,src,tgt,signal,step){const ss=split(p),m=await lookup([p,...ss],src,tgt);step=step||(()=>{});
+ if(m[0]){step(wc(p));return[{text:m[0],confidence:null,reviewed:true}]}
+ const parts=[];let run=[];const flush=async()=>{if(!run.length)return;const ch=chunk(run);run=[];for(let i=0;i<ch.length;i+=3){const g=ch.slice(i,i+3);parts.push(...await tr(g,src,tgt,signal));step(g.reduce((a,x)=>a+wc(x),0))}};
+ for(let i=0;i<ss.length;i++){const r=m[i+1];if(r){await flush();parts.push({text:r,confidence:null,reviewed:true});step(wc(ss[i]))}else run.push(ss[i])}
+ await flush();return parts}
 const chunk=(ss,max=120)=>{const o=[];let b='',n=0;for(const x of ss){const w=x.split(' ').length;if(b&&n+w>max){o.push(b);b='';n=0}b=b?b+' '+x:x;n+=w}if(b)o.push(b);return o};
 const split=t=>t.replace(/\s+/g,' ').trim().split(/(?<=[.!?…]["”’)]?)\s+(?=["“‘(]?[A-Z0-9])/).filter(Boolean);
-const render=parts=>parts.map(p=>p.confidence!=null&&p.confidence<LOW?'<span class="low" title="The model was unsure here">'+esc(p.text)+'</span>':esc(p.text)).join(' ');
+const render=parts=>parts.map(p=>p.reviewed?'<span class="rev" title="Checked by a fluent speaker">'+esc(p.text)+'</span>':p.confidence!=null&&p.confidence<LOW?'<span class="low" title="The model was unsure here">'+esc(p.text)+'</span>':esc(p.text)).join(' ');
 const friendly=m=>/429|rate|busy/i.test(m)?'Lots of people are translating right now. Please try again in a minute.':/401|Unauthorized/i.test(m)?'The service is not set up correctly yet. Please tell the site owner.':'Something went wrong. Please try again.';
 let tm,seq=0;
 $('in').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(runText,800)});
@@ -115,10 +122,10 @@ async function runText(){const text=$('in').value.trim(),o=$('out'),my=++seq;$('
  if(!text){o.className='empty';o.textContent='Your translation will appear here.';$('st').textContent='';$('nt').textContent='';cur.out='';return}
  try{const d=await resolveDir(text);if(my!=seq)return;labels(d.src,d.tgt);if(dirMode=='auto'&&d.d&&d.d.lang!='unknown')$('det').textContent='Looks like '+NAME[d.src]+(d.d.confidence<.7?' (not sure)':'');
   $('st').textContent='Translating…';if(!(await awake()))throw new Error('Server did not start');if(my!=seq)return;
-  const res=[];for(const p of text.split(/\n+/).filter(s=>s.trim())){const ss=chunk(split(p)),parts=[];for(let i=0;i<ss.length;i+=3)parts.push(...await tr(ss.slice(i,i+3),d.src,d.tgt));res.push(parts);if(my!=seq)return}
+  const res=[];for(const p of text.split(/\n+/).filter(s=>s.trim())){res.push(await trPara(p.trim(),d.src,d.tgt));if(my!=seq)return}
   o.className='';o.innerHTML=res.map(render).join('<br><br>');cur={src:d.src,tgt:d.tgt,text,out:res.map(r=>r.map(x=>x.text).join(' ')).join('\n\n')};
-  const low=res.flat().filter(x=>x.confidence!=null&&x.confidence<LOW).length;$('st').textContent='Draft';
-  $('nt').textContent=low?'Underlined parts are less certain. Please check them with a speaker.':'This is a computer draft. For important text, ask a fluent speaker to check it.';
+  const all=res.flat(),nrev=all.filter(x=>x.reviewed).length,low=all.filter(x=>x.confidence!=null&&x.confidence<LOW).length;$('st').textContent=nrev==all.length?'Checked by a speaker':'Draft';
+  $('nt').textContent=nrev==all.length?'A fluent speaker checked this translation.':nrev?'Highlighted parts were checked by a fluent speaker. The rest is a computer draft.':low?'Underlined parts are less certain. Please check them with a speaker.':'This is a computer draft. For important text, ask a fluent speaker to check it.';
  }catch(e){if(my==seq){$('st').textContent='';$('nt').innerHTML='<span class="err">'+esc(friendly(e.message||''))+'</span>'}}}
 $('clear').onclick=()=>{$('in').value='';seq++;runText();$('in').focus()};
 document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{$('in').value=b.dataset.x;setAuto(true);dirMode='auto';runText()});
@@ -133,25 +140,26 @@ $('fixs').onclick=async()=>{const v=$('fixt').value.trim();if(!v)return;const re
 $('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(q,null,1)],{type:'application/json'}));a.download='ateso-corrections.json';a.click()};
 // documents
 const showDl=on=>$('dl').classList.toggle('hide',!on);
+async function readTxt(f){const t=await f.text(),ps=t.replace(/\r\n/g,'\n').split(/\n\s*\n/).map(x=>x.replace(/\s*\n\s*/g,' ').trim()).filter(Boolean),d=await detect(ps.join(' ').slice(0,20000));return{paragraphs:ps.map(x=>({text:x,sentences:split(x)})),words:ps.reduce((a,x)=>a+wc(x),0),sentences:0,lang:d.lang||'unknown',confidence:d.confidence||0}}
 async function loadFile(f){if(!f)return;$('dinfo').textContent='Reading '+f.name+'…';$('pairs').innerHTML='';docOut=[];showDl(false);$('stop').classList.add('hide');$('bar').classList.add('hide');$('dstat').textContent='';
- try{const fd=new FormData();fd.append('file',f);docData=await(await api('extract',{method:'POST',body:fd})).json();docData.name=f.name;docData.paragraphs.forEach(p=>p.chunks=chunk(p.sentences));docData.total=docData.paragraphs.reduce((a,p)=>a+p.chunks.length,0);
+ try{const fd=new FormData();fd.append('file',f);docData=/\.(txt|md)$/i.test(f.name)?await readTxt(f):await(await api('extract',{method:'POST',body:fd})).json();docData.name=f.name;docData.paragraphs.forEach(p=>p.chunks=chunk(p.sentences));docData.total=docData.paragraphs.reduce((a,p)=>a+p.chunks.length,0);
   const d=docData,src=dirMode=='auto'?(d.lang=='teo'?'teo':'eng'):dirMode.split('-')[0];labels(src,src=='eng'?'teo':'eng');
   $('dinfo').textContent=f.name+': '+d.words+' words. Looks like '+(d.lang=='unknown'?'an unknown language':NAME[d.lang])+'. Long documents can take a few minutes.';$('dctl').classList.remove('hide');$('go').classList.remove('hide')}
- catch(e){docData=null;$('dctl').classList.add('hide');$('dinfo').innerHTML='<span class="err">'+esc((e.message||'').slice(0,200)||'Could not read this file.')+'</span>'}}
+ catch(e){docData=null;$('dctl').classList.add('hide');const m=e.message||'',down=!e.status||e.status>=500||/suspend|unavailable|not found/i.test(m);$('dinfo').innerHTML='<span class="err">'+esc(down?'Word and PDF files need our document server, which is resting right now. A .txt file works in the meantime.':m.slice(0,200)||'Could not read this file.')+'</span>'}}
 $('file').onchange=e=>loadFile(e.target.files[0]);
 ['dragover','dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.toggle('over',ev=='dragover');if(ev=='drop')loadFile(e.dataTransfer.files[0])}));
 $('go').onclick=async()=>{if(!docData)return;const src=dirMode=='auto'?(docData.lang=='teo'?'teo':'eng'):dirMode.split('-')[0],tgt=src=='eng'?'teo':'eng';
  ctl=new AbortController();$('go').classList.add('hide');$('stop').classList.remove('hide');$('bar').classList.remove('hide');$('pairs').innerHTML='';docOut=[];showDl(false);
  if(!(await awake())){$('dstat').textContent='The service did not start. Please try again.';$('stop').classList.add('hide');$('go').classList.remove('hide');return}
- let done=0;const t0=Date.now(),total=docData.total;
- try{for(const p of docData.paragraphs){const parts=[];for(let i=0;i<p.chunks.length;i+=3){const r=await tr(p.chunks.slice(i,i+3),src,tgt,ctl.signal);parts.push(...r);done+=r.length;
-   const eta=Math.round((Date.now()-t0)/1000/done*(total-done));$('bari').style.width=(done/total*100)+'%';$('dstat').textContent='Translating… about '+Math.max(1,Math.ceil(eta/60))+' min left'}
+ let done=0;const t0=Date.now(),total=Math.max(1,docData.words);
+ const step=w=>{done=Math.min(total,done+w);const eta=Math.round((Date.now()-t0)/1000/Math.max(done,1)*(total-done));$('bari').style.width=(done/total*100)+'%';$('dstat').textContent='Translating… about '+Math.max(1,Math.ceil(eta/60))+' min left'};
+ try{for(const p of docData.paragraphs){const parts=await trPara(p.text,src,tgt,ctl.signal,step);
    docOut.push({src:p.text,tgt:parts.map(x=>x.text).join(' ')});const d=document.createElement('div');d.className='pair';d.innerHTML='<div class="s">'+esc(p.text)+'</div><div class="t">'+render(parts)+'</div>';$('pairs').appendChild(d)}
   $('dstat').textContent='All done. Please have a fluent speaker review it before you rely on it.';showDl(true)
  }catch(e){$('dstat').textContent=e.name=='AbortError'?'Stopped. What was finished is shown below.':friendly(e.message||'');if(docOut.length)showDl(true)}
  $('stop').classList.add('hide');$('go').classList.remove('hide')};
 $('stop').onclick=()=>ctl&&ctl.abort();
-async function dl(fmt){try{const r=await api('export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:(docData.name||'Translation').replace(/\.\w+$/,''),format:fmt,bilingual:$('bilc').checked,paragraphs:docOut})});const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='translation.'+fmt;a.click()}catch(e){$('dstat').textContent='Could not create the file. Please try again.'}}
+async function dl(fmt){try{if(fmt=='txt'){const body=docOut.map(p=>$('bilc').checked?p.src+'\n'+p.tgt:p.tgt).join('\n\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type:'text/plain;charset=utf-8'}));a.download='translation.txt';a.click();return}const r=await api('export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:(docData.name||'Translation').replace(/\.\w+$/,''),format:fmt,bilingual:$('bilc').checked,paragraphs:docOut})});const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='translation.'+fmt;a.click()}catch(e){$('dstat').textContent='Could not create the Word file. The text download still works; try Word again later.'}}
 $('dl-docx').onclick=()=>dl('docx');$('dl-txt').onclick=()=>dl('txt');
 // chrome
 const tab=t=>{$('p-text').classList.toggle('hide',t!='text');$('p-doc').classList.toggle('hide',t!='doc');$('t-text').classList.toggle('on',t=='text');$('t-doc').classList.toggle('on',t=='doc')};

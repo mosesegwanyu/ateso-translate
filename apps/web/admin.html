@@ -6,7 +6,7 @@
 table{border-collapse:collapse;width:100%;background:#fbfcfa}td,th{border:1px solid #c9d2c8;padding:6px 8px;vertical-align:top;text-align:left}button,input,select{font:inherit;padding:6px 10px;margin:2px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.s{opacity:.7}.wrap{overflow-x:auto}</style></head><body>
 <h1>Review queue</h1><div class="row"><input id="tok" type="password" placeholder="Admin token" autocomplete="off"><input id="me" placeholder="Your name (reviewer)">
 <select id="flt"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="">All</option></select><button id="load">Load</button><button id="ej">Export approved JSON</button><button id="ec">Export approved CSV</button></div>
-<p id="msg"></p><div class="wrap"><table><thead><tr><th>#</th><th>Dir</th><th>Source</th><th>Machine</th><th>Contributor’s correction</th><th>Review</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p class="s">Approving makes a correction live for everyone within about a minute, for that exact text only. Reject to take it back down.</p><p id="msg"></p><div class="wrap"><table><thead><tr><th>#</th><th>Dir</th><th>Source</th><th>Machine</th><th>Contributor’s correction</th><th>Review</th></tr></thead><tbody id="rows"></tbody></table></div>
 <script>
 const $=id=>document.getElementById(id);$('tok').value=sessionStorage.getItem('at')||'';$('me').value=localStorage.getItem('rn')||'';
 const H=()=>({'Authorization':'Bearer '+$('tok').value.trim(),'Content-Type':'application/json'});
